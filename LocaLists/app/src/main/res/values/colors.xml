@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="oxford_blue">#001427</color>
+    <color name="paynes_gray">#335b75</color>
+    <color name="bice_blue">#0072b1</color>
+    <color name="sky_blue">#92c9e1</color>
+    <color name="columbia_blue">#cfe8ef</color>
+    <color name="alice_blue">#f2f8fa</color>
+    <color name="forest_green">#228b22</color>
+    <color name="shamrock_green">#4da167</color>
+    <color name="amaranth">#e01a4f</color>
+    <color name="light_red">#ff8c8c</color>
+</resources>
