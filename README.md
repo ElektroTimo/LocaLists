@@ -1,6 +1,6 @@
 # LocaLists
 
-## --//In Development\\--
+## --// In Development \\--
 
 ### Localists is an app concept that helps users use lists more effectively.
 
