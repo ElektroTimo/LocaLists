@@ -9,7 +9,6 @@ import android.util.Log
 import org.json.JSONObject
 import android.content.Context
 
-
 class TaskViewModel : ViewModel() {
     var taskItems = MutableLiveData<MutableList<TaskItem>>().apply {
         value = mutableListOf()
@@ -28,6 +27,7 @@ class TaskViewModel : ViewModel() {
                 put("dueTime", taskItem.dueTime?.toString()) // Convert LocalTime to string
                 put("completedDate", taskItem.completedDate?.toString()) // Convert LocalDate to string
                 put("id", taskItem.id.toString())
+                put("imagePath", taskItem.imagePath) // Add imagePath to JSON
             }.toString()
         }
 
@@ -49,7 +49,8 @@ class TaskViewModel : ViewModel() {
                 desc = jsonObject.getString("desc"),
                 dueTime = jsonObject.optString("dueTime")?.takeIf { it.isNotEmpty() }?.let { LocalTime.parse(it) },
                 completedDate = jsonObject.optString("completedDate")?.takeIf { it.isNotEmpty() }?.let { LocalDate.parse(it) },
-                id = UUID.fromString(jsonObject.getString("id"))
+                id = UUID.fromString(jsonObject.getString("id")),
+                imagePath = jsonObject.optString("imagePath")?.takeIf { it.isNotEmpty() } // Load imagePath
             )
         }
 
