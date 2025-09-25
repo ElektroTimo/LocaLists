@@ -5,7 +5,6 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.GravityCompat
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
@@ -16,6 +15,7 @@ import android.Manifest
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import android.util.Log
 
 class MainActivity : AppCompatActivity() {
 
@@ -64,7 +64,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun requestPermissions() {
-        val permissions = arrayOf(Manifest.permission.CAMERA, Manifest.permission.READ_MEDIA_IMAGES)
+        val permissions = arrayOf(
+            Manifest.permission.CAMERA,
+            Manifest.permission.READ_MEDIA_IMAGES,
+            Manifest.permission.POST_NOTIFICATIONS
+        )
         val toRequest = permissions.filter {
             ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
         }.toTypedArray()
@@ -79,7 +83,9 @@ class MainActivity : AppCompatActivity() {
         if (requestCode == 100) {
             permissions.forEachIndexed { index, permission ->
                 if (grantResults[index] == PackageManager.PERMISSION_GRANTED) {
-                    android.util.Log.d("MainActivity", "Permission granted: $permission")
+                    Log.d("MainActivity", "Permission granted: $permission")
+                } else {
+                    Log.d("MainActivity", "Permission denied: $permission")
                 }
             }
         }
