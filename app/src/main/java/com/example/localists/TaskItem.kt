@@ -12,7 +12,11 @@ data class TaskItem(
     var dueTime: LocalTime?,
     var completedDate: LocalDate?,
     var id: UUID = UUID.randomUUID(),
-    var imagePath: String? = null // Add this field for the image path
+    var imagePath: String? = null, // Added this field for the image path
+    var latitude: Double? = null, // Geofence latitude
+    var longitude: Double? = null, // Geofence longitude
+    var radiusMeters: Float? = null // Geofence radius in meters
+
 ) {
     fun isCompleted() = completedDate != null
     fun imageResource(): Int = if (isCompleted()) R.drawable.checked_24 else R.drawable.unchecked_24

@@ -1,21 +1,28 @@
 package com.example.localists
 
+import android.Manifest
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.localists.databinding.ActivityMainBinding
-import android.Manifest
-import android.content.pm.PackageManager
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import android.util.Log
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 
 class MainActivity : AppCompatActivity() {
 
@@ -44,7 +51,11 @@ class MainActivity : AppCompatActivity() {
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
 
+        createNotificationChannel()
         requestPermissions()
+
+        // Test notification on app launch (comment out after testing)
+        sendTaskNotification("Test Task", "This is a test task", "test123")
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -89,5 +100,29 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = "Localists Channel"
+            val descriptionText = "Channel for Localists notifications"
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel("LOCALISTS_CHANNEL_ID", name, importance).apply {
+                description = descriptionText
+            }
+            val notificationManager: NotificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+
+    private fun sendTaskNotification(taskName: String, taskDesc: String, taskId: String) {
+        val intent = Intent(this, TaskNotificationReceiver::class.java).apply {
+            putExtra("taskName", taskName)
+            putExtra("taskDesc", taskDesc)
+            putExtra("taskId", taskId)
+        }
+        sendBroadcast(intent)
+        Log.d("MainActivity", "Broadcast sent for task: $taskName")
     }
 }
