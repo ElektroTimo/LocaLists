@@ -2,7 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
 }
-
+import java.util.Properties
 android {
     namespace = "com.example.localists"
     compileSdk = 33
@@ -15,12 +15,20 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        manifestPlaceholders["MAPS_API_KEY"] = project.findProperty("MAPS_API_KEY") ?: ""
+
+        // load local.properties file
+        val properties = Properties()
+        properties.load(project.rootProject.file("local.properties").inputStream())
+        // Set API keys in BuildConfig in the most convoluted way possible due to gradle bug
+        buildConfigField("String", "MAPS_API_KEY", "\"${properties.getProperty(" MAPS_API_KEY ")}\"")
+
+        // Add this: Inject into manifest placeholder for ${MAPS_API_KEY} to make compiler shut up
+        manifestPlaceholders["MAPS_API_KEY"] = properties.getProperty("MAPS_API_KEY") ?: ""
     }
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true // Make sure this is enabled or gradle will throw a maps api error
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -40,6 +48,7 @@ android {
     buildFeatures {
         viewBinding = true
         dataBinding = true // Add this line for data binding
+        buildConfig = true  // Add this line or gradle will throw an error related to android manifest not having maps api
     }
 }
 
