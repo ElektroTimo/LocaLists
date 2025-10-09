@@ -30,7 +30,8 @@ class GeofenceMapFragment : Fragment(), OnMapReadyCallback {
     private lateinit var mMap: GoogleMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var currentLocation: LatLng? = null
-    private var geofenceCircle: Circle? = null // NEW: To track the drawn geofence circle
+    private var geofenceCircle: Circle? = null // Track the main (inner) circle
+    private var geofenceGlow: Circle? = null // NEW: Track the outer glow ring
 
     // NEW: Permission request code
     private val LOCATION_PERMISSION_REQUEST_CODE = 101
@@ -65,15 +66,15 @@ class GeofenceMapFragment : Fragment(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
+        // UPDATED: Initial disable of zoom controls (reinforced later if needed)
+        mMap.uiSettings.isZoomControlsEnabled = false
+
         // NEW: Enable location on map if permission granted
         if (hasLocationPermission()) {
             enableMyLocation()
         } else {
             requestLocationPermission()
         }
-
-        // NEW: Initial map setup (will zoom to location after fetching)
-        mMap.uiSettings.isZoomControlsEnabled = true // Standard zoom for easy testing
     }
 
     // NEW: Check for location permission
@@ -120,6 +121,9 @@ class GeofenceMapFragment : Fragment(), OnMapReadyCallback {
         }
         mMap.isMyLocationEnabled = true
 
+        // UPDATED: Reinforce zoom disable after location UI loads (fixes timing quirks)
+        mMap.uiSettings.isZoomControlsEnabled = false
+
         fusedLocationClient.lastLocation.addOnSuccessListener { location ->
             if (location != null) {
                 currentLocation = LatLng(location.latitude, location.longitude)
@@ -133,19 +137,34 @@ class GeofenceMapFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
-    // NEW: Add a circular geofence on long-press
+    // UPDATED: Add a modern geofence with inner fill and outer glow ring
     private fun addGeofenceCircle(latLng: LatLng) {
-        // Remove previous circle if exists
+        // Remove previous circles if exist
         geofenceCircle?.remove()
+        geofenceGlow?.remove()
 
-        // Draw new circle (100m radius, semi-transparent blue)
+        // Define theme color
+        val themeBlue = Color.parseColor("#0072b1") // bice_blue from palette
+        val faintBlue = 0x260072B1.toInt() // 15% opacity for subtle inner fill
+
+        // NEW: Inner circle with faint fill
         geofenceCircle = mMap.addCircle(
             CircleOptions()
                 .center(latLng)
                 .radius(10.0) // Standard 10m for testing
-                .fillColor(0x4080CBFF.toInt()) // Light blue fill
-                .strokeColor(Color.BLUE)
-                .strokeWidth(2f)
+                .fillColor(faintBlue)
+                .strokeColor(themeBlue)
+                .strokeWidth(0f) // No inner stroke to let glow handle outline
+        )
+
+        // NEW: Outer glow ring (slightly larger, stroke-only for halo effect)
+        geofenceGlow = mMap.addCircle(
+            CircleOptions()
+                .center(latLng)
+                .radius(12.0) // 2m larger for subtle expansion
+                .fillColor(Color.TRANSPARENT) // No fill
+                .strokeColor(themeBlue)
+                .strokeWidth(5f) // Thicker for visibility
         )
 
         Toast.makeText(requireContext(), "Geofence set at ${latLng.latitude}, ${latLng.longitude}", Toast.LENGTH_SHORT).show()

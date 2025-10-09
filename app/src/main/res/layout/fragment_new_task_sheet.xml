@@ -68,12 +68,13 @@
         android:text="Capture Photo"
         android:textColor="?colorOnPrimary"/>
 
-    <!-- NEW: Compact map view for geofence setup (fixed height to fit bottom sheet) -->
-    <FrameLayout
+    <!-- UPDATED: Rounded map view using MaterialCardView to match photo card style -->
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="200dp"
         android:layout_marginHorizontal="10dp"
-        android:layout_marginTop="8dp">
+        android:layout_marginTop="8dp"
+        app:cardCornerRadius="4dp">
 
         <fragment
             android:id="@+id/map"
@@ -81,7 +82,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-    </FrameLayout>
+    </com.google.android.material.card.MaterialCardView>
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
