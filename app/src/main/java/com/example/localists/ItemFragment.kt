@@ -8,14 +8,14 @@ import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.example.localists.placeholder.PlaceholderContent
+import androidx.lifecycle.ViewModelProvider // NEW: For TaskViewModel
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout // NEW: For swipe down
 
-/**
- * A fragment representing a list of Items.
- */
 class ItemFragment : Fragment() {
 
     private var columnCount = 1
+    private lateinit var taskViewModel: TaskViewModel // NEW: To observe tasks
+    private lateinit var adapter: MyItemRecyclerViewAdapter // NEW: Adapter reference for updates
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,25 +31,38 @@ class ItemFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_item_list, container, false)
 
-        // Set the adapter
-        if (view is RecyclerView) {
-            with(view) {
-                layoutManager = when {
-                    columnCount <= 1 -> LinearLayoutManager(context)
-                    else -> GridLayoutManager(context, columnCount)
-                }
-                adapter = MyItemRecyclerViewAdapter(PlaceholderContent.ITEMS)
+        // NEW: Get ViewModel (activity-scoped)
+        taskViewModel = ViewModelProvider(requireActivity()).get(TaskViewModel::class.java)
+
+        // Set up RecyclerView
+        val recyclerView = view.findViewById<RecyclerView>(R.id.list) // Assume ID from layout
+        with(recyclerView) {
+            layoutManager = when {
+                columnCount <= 1 -> LinearLayoutManager(context)
+                else -> GridLayoutManager(context, columnCount)
             }
+            adapter = MyItemRecyclerViewAdapter(mutableListOf()) // NEW: Start with empty TaskItem list
+            this.adapter = adapter
         }
+
+        // NEW: Set up SwipeRefreshLayout (assume ID 'swipe_refresh' in layout)
+        val swipeRefresh = view.findViewById<SwipeRefreshLayout>(R.id.swipe_refresh)
+        swipeRefresh.setOnRefreshListener {
+            NewTaskSheet(null).show(childFragmentManager, "new_task_tag") // Trigger new task sheet
+            swipeRefresh.isRefreshing = false // Stop spinner immediately
+        }
+
+        // NEW: Observe tasks and update adapter
+        taskViewModel.taskItems.observe(viewLifecycleOwner) { tasks ->
+            adapter.updateTasks(tasks ?: emptyList()) // Update with real tasks
+        }
+
         return view
     }
 
     companion object {
-
-        // TODO: Customize parameter argument names
         const val ARG_COLUMN_COUNT = "column-count"
 
-        // TODO: Customize parameter initialization
         @JvmStatic
         fun newInstance(columnCount: Int) =
             ItemFragment().apply {

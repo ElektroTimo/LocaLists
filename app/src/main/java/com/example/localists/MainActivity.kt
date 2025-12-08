@@ -11,48 +11,48 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import androidx.appcompat.app.ActionBarDrawerToggle
+import android.view.View // NEW: For visibility changes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
-import androidx.navigation.ui.setupWithNavController
+import androidx.lifecycle.ViewModelProvider // NEW: For TaskViewModel
 import com.example.localists.databinding.ActivityMainBinding
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
+    private lateinit var taskViewModel: TaskViewModel // NEW: Activity-scoped ViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setSupportActionBar(binding.toolbar)
+        // NEW: Hide toolbar to remove top bar (no action bar needed)
+        binding.toolbar.visibility = View.GONE
 
-        val drawerLayout = binding.drawerLayout
-        val navController = findNavController(R.id.nav_host_fragment_content_main)
-        appBarConfiguration = AppBarConfiguration(
-            setOf(R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow),
-            drawerLayout
-        )
-        setupActionBarWithNavController(navController, appBarConfiguration)
-        binding.navView.setupWithNavController(navController)
-
-        val toggle = ActionBarDrawerToggle(
-            this, drawerLayout, binding.toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close
-        )
-        drawerLayout.addDrawerListener(toggle)
-        toggle.syncState()
+        // Comment out drawer and nav setup to disable hamburger menu
+        // val drawerLayout = binding.drawerLayout
+        // val navController = findNavController(R.id.nav_host_fragment_content_main)
+        // appBarConfiguration = AppBarConfiguration(
+        //     setOf(R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow),
+        //     drawerLayout
+        // )
+        // setupActionBarWithNavController(navController, appBarConfiguration)
+        // binding.navView.setupWithNavController(navController)
+        //
+        // val toggle = ActionBarDrawerToggle(
+        //     this, drawerLayout, binding.toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close
+        // )
+        // drawerLayout.addDrawerListener(toggle)
+        // toggle.syncState()
 
         createNotificationChannel()
         requestPermissions()
+
+        // NEW: Init ViewModel and load tasks (for list in fragment)
+        taskViewModel = ViewModelProvider(this).get(TaskViewModel::class.java)
+        taskViewModel.loadTaskItems(this)
 
         // Test notification on app launch (comment out after testing)
         sendTaskNotification("Test Task", "This is a test task", "test123")
@@ -69,10 +69,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onSupportNavigateUp(): Boolean {
-        val navController = findNavController(R.id.nav_host_fragment_content_main)
-        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
-    }
+    // override fun onSupportNavigateUp(): Boolean {
+    //     val navController = findNavController(R.id.nav_host_fragment_content_main)
+    //     return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+    // }
 
     private fun requestPermissions() {
         val permissions = arrayOf(

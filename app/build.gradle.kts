@@ -3,54 +3,54 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 import java.util.Properties
-android {
-    namespace = "com.example.localists"
-    compileSdk = 33
+        android {
+            namespace = "com.example.localists"
+            compileSdk = 33
 
-    defaultConfig {
-        applicationId = "com.example.localists"
-        minSdk = 29
-        targetSdk = 33
-        versionCode = 1
-        versionName = "1.0"
+            defaultConfig {
+                applicationId = "com.example.localists"
+                minSdk = 29
+                targetSdk = 33
+                versionCode = 1
+                versionName = "1.0"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+                testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        // load local.properties file
-        val properties = Properties()
-        properties.load(project.rootProject.file("local.properties").inputStream())
-        // Set API keys in BuildConfig in the most convoluted way possible due to gradle bug
-        buildConfigField("String", "MAPS_API_KEY", "\"${properties.getProperty(" MAPS_API_KEY ")}\"")
+                // load local.properties file
+                val properties = Properties()
+                properties.load(project.rootProject.file("local.properties").inputStream())
+                // Set API keys in BuildConfig in the most convoluted way possible due to gradle bug
+                buildConfigField("String", "MAPS_API_KEY", "\"${properties.getProperty(" MAPS_API_KEY ")}\"")
 
-        // Add this: Inject into manifest placeholder for ${MAPS_API_KEY} to make compiler shut up
-        manifestPlaceholders["MAPS_API_KEY"] = properties.getProperty("MAPS_API_KEY") ?: ""
-    }
+                // Add this: Inject into manifest placeholder for ${MAPS_API_KEY} to make compiler shut up
+                manifestPlaceholders["MAPS_API_KEY"] = properties.getProperty("MAPS_API_KEY") ?: ""
+            }
 
-    buildTypes {
-        release {
-            isMinifyEnabled = true // Make sure this is enabled or gradle will throw a maps api error
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
+            buildTypes {
+                release {
+                    isMinifyEnabled = true // Make sure this is enabled or gradle will throw a maps api error
+                    proguardFiles(
+                        getDefaultProguardFile("proguard-android-optimize.txt"),
+                        "proguard-rules.pro"
+                    )
+                }
+            }
+
+            compileOptions {
+                sourceCompatibility = JavaVersion.VERSION_1_8
+                targetCompatibility = JavaVersion.VERSION_1_8
+            }
+
+            kotlinOptions {
+                jvmTarget = "1.8"
+            }
+
+            buildFeatures {
+                viewBinding = true
+                dataBinding = true // Add this line for data binding
+                buildConfig = true  // Add this line or gradle will throw an error related to android manifest not having maps api
+            }
         }
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
-
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
-
-    buildFeatures {
-        viewBinding = true
-        dataBinding = true // Add this line for data binding
-        buildConfig = true  // Add this line or gradle will throw an error related to android manifest not having maps api
-    }
-}
 
 dependencies {
     implementation("androidx.core:core-ktx:1.9.0")
@@ -73,4 +73,5 @@ dependencies {
     implementation("com.google.android.gms:play-services-maps:18.2.0")
     // Google Play Services Location
     implementation("com.google.android.gms:play-services-location:21.3.0")
+    implementation("androidx.cardview:cardview:1.0.0") // NEW: For rounded rectangle container
 }
